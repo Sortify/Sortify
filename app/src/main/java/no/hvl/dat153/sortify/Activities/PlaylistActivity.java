@@ -2,12 +2,21 @@ package no.hvl.dat153.sortify.Activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
+import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
@@ -27,10 +36,10 @@ public class PlaylistActivity extends AppCompatActivity {
     private String playlist;
     private String playlistName;
 
-    ArrayList<Track> tracks;
+    ArrayList<PlaylistTrack> tracks;
+    ArrayList<AudioFeaturesTrack> afTracks;
     ListView tListView;
-
-    ListView plListView;
+    Spinner dropdown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,15 +52,28 @@ public class PlaylistActivity extends AppCompatActivity {
         setTitle(playlistName);
 
         tListView = (ListView)findViewById(R.id.trackListView);
+        dropdown = (Spinner)findViewById(R.id.spinner);
 
+        String[] items = new String[]{"Danceability", "High energy", "Slow beats"};
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        dropdown.setAdapter(spinnerAdapter);
+
+        dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String sortString = (String) dropdown.getAdapter().getItem(position);
+                System.out.println(id + " " + sortString);
+            }
+
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         if (!accessToken.equals("")) {
             getMeId();
-            //System.out.println(spotify.getMe().id);
-            //System.out.println(playlist);
-
-            //getTracks(spotify.getMe().id, playlist);
         }
+
 
     }
 
@@ -76,20 +98,15 @@ public class PlaylistActivity extends AppCompatActivity {
             @Override
             public void success(Pager<PlaylistTrack> trackPager, Response response) {
                 if (trackPager.items.size() > 0) {
-
-                    ArrayList<String> items = new ArrayList<String>();
-
-                    for (PlaylistTrack track : trackPager.items) {
-                        System.out.println(track.track.name);
-                        items.add(track.track.name);
-                    }
-
-
                     tracks = (ArrayList) trackPager.items;
-                    //TracksAdapter adapter = new TracksAdapter(getApplicationContext(), trackPager.items);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, android.R.id.text1, items);
-                    tListView.setAdapter(adapter);
-                    //plListView.setOnItemClickListener(onItemClickListener);
+
+                    String trackIds = "";
+
+                    // Get track features
+                    for (PlaylistTrack plTrack : tracks) {
+                        trackIds += plTrack.track.id + ",";
+                    }
+                    getTrackFeatures(trackIds);
                 }
             }
 
@@ -100,6 +117,52 @@ public class PlaylistActivity extends AppCompatActivity {
         });
     }
 
+    private void getTrackFeatures(String trackIds) {
+        spotify.getTracksAudioFeatures(trackIds, new Callback<AudioFeaturesTracks>() {
+            @Override
+            public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
+                afTracks = (ArrayList) audioFeaturesTracks.audio_features;
+                loadTrackListView("DANCE");
+            }
 
+            @Override
+            public void failure(RetrofitError retrofitError) {
+
+            }
+        });
+    }
+
+    private void loadTrackListView(String sorting) {
+        Collections.sort(afTracks, new Comparator<AudioFeaturesTrack>() {
+            @Override
+            public int compare(AudioFeaturesTrack o1, AudioFeaturesTrack o2) {
+                System.out.println("comparing...");
+                int i1 = (int)(o1.danceability * 100);
+                int i2 = (int)(o2.danceability * 100);
+                return Integer.valueOf(i1).compareTo(i2);
+            }
+        });
+
+        for (AudioFeaturesTrack af : afTracks) {
+            System.out.println(af.danceability);
+        }
+
+        ArrayList<PlaylistTrack> tracksSorted =  new ArrayList<>();
+
+        for (AudioFeaturesTrack aft : afTracks) {
+            for (PlaylistTrack plt : tracks) {
+                if (aft.id.equals(plt.track.id)) {
+                    System.out.println(plt.track.name + " " + aft.danceability);
+                    tracksSorted.add(plt);
+                }
+            }
+        }
+
+        TracksAdapter adapter = new TracksAdapter(getApplicationContext(), tracksSorted);
+        tListView.setAdapter(adapter);
+
+        //adapter.notifyDataSetChanged();
+        //plListView.setOnItemClickListener(onItemClickListener);
+    }
 
 }

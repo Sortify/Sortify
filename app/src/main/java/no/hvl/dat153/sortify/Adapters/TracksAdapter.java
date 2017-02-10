@@ -7,30 +7,35 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import no.hvl.dat153.sortify.R;
 
-public class TracksAdapter extends ArrayAdapter<Track> {
+public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
+    private Context context;
 
-    public TracksAdapter(Context context, List<PlaylistTrack> tracks) {
+    public TracksAdapter(Context context, ArrayList<PlaylistTrack> tracks) {
         super(context, 0, (List) tracks);
+        this.context = context;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Track track = getItem(position);
+        PlaylistTrack track = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.item_list, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.track_item, parent, false);
         }
 
-        TextView name = (TextView) convertView.findViewById(R.id.nameTextView);
-        //TextView subText = (TextView) convertView.findViewById(R.id.subTextView);
+        TextView name = (TextView) convertView.findViewById(R.id.trackNameTextView);
+        TextView artistAlbum = (TextView) convertView.findViewById(R.id.artistAlbumTextView);
 
-        name.setText(track.name);
+        name.setText(track.track.name);
+        artistAlbum.setText(track.track.artists.get(0).name + " - " + track.track.album.name);
 
         return convertView;
     }
