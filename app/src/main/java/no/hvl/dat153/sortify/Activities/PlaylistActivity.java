@@ -24,6 +24,7 @@ import kaaes.spotify.webapi.android.models.UserPrivate;
 import no.hvl.dat153.sortify.Adapters.PlaylistAdapter;
 import no.hvl.dat153.sortify.Adapters.TracksAdapter;
 import no.hvl.dat153.sortify.R;
+import no.hvl.dat153.sortify.TrackSort;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -37,7 +38,7 @@ public class PlaylistActivity extends AppCompatActivity {
     private String playlistName;
 
     ArrayList<PlaylistTrack> tracks;
-    ArrayList<AudioFeaturesTrack> afTracks;
+    ArrayList<AudioFeaturesTrack> afTracks = new ArrayList<>();
     ListView tListView;
     Spinner dropdown;
 
@@ -54,8 +55,8 @@ public class PlaylistActivity extends AppCompatActivity {
         tListView = (ListView)findViewById(R.id.trackListView);
         dropdown = (Spinner)findViewById(R.id.spinner);
 
-        String[] items = new String[]{"Danceability", "High energy", "Slow beats"};
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        String[] items = new String[]{"Danceability", "Energy", "Positivity"};
+        final ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(spinnerAdapter);
 
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -63,6 +64,21 @@ public class PlaylistActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String sortString = (String) dropdown.getAdapter().getItem(position);
                 System.out.println(id + " " + sortString);
+
+                if (!afTracks.isEmpty()) {
+                    ArrayList<PlaylistTrack> sorted = new ArrayList<>();
+
+                    if (id == 0) {
+                        sorted = TrackSort.sortByDanceability(tracks, afTracks);
+                    } else if (id == 1) {
+                        sorted = TrackSort.sortByEnergy(tracks, afTracks);
+                    } else if (id == 2) {
+                        sorted = TrackSort.sortByValence(tracks, afTracks);
+                    }
+
+                    loadTrackListView(sorted);
+                }
+
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -122,7 +138,7 @@ public class PlaylistActivity extends AppCompatActivity {
             @Override
             public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
                 afTracks = (ArrayList) audioFeaturesTracks.audio_features;
-                loadTrackListView("DANCE");
+                loadTrackListView(TrackSort.sortByDanceability(tracks, afTracks));
             }
 
             @Override
@@ -132,36 +148,10 @@ public class PlaylistActivity extends AppCompatActivity {
         });
     }
 
-    private void loadTrackListView(String sorting) {
-        Collections.sort(afTracks, new Comparator<AudioFeaturesTrack>() {
-            @Override
-            public int compare(AudioFeaturesTrack o1, AudioFeaturesTrack o2) {
-                System.out.println("comparing...");
-                int i1 = (int)(o1.danceability * 100);
-                int i2 = (int)(o2.danceability * 100);
-                return Integer.valueOf(i1).compareTo(i2);
-            }
-        });
-
-        for (AudioFeaturesTrack af : afTracks) {
-            System.out.println(af.danceability);
-        }
-
-        ArrayList<PlaylistTrack> tracksSorted =  new ArrayList<>();
-
-        for (AudioFeaturesTrack aft : afTracks) {
-            for (PlaylistTrack plt : tracks) {
-                if (aft.id.equals(plt.track.id)) {
-                    System.out.println(plt.track.name + " " + aft.danceability);
-                    tracksSorted.add(plt);
-                }
-            }
-        }
-
-        TracksAdapter adapter = new TracksAdapter(getApplicationContext(), tracksSorted);
+    private void loadTrackListView(ArrayList<PlaylistTrack> sorted) {
+        TracksAdapter adapter = new TracksAdapter(this, sorted);
         tListView.setAdapter(adapter);
-
-        //adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
         //plListView.setOnItemClickListener(onItemClickListener);
     }
 

@@ -1,5 +1,6 @@
 package no.hvl.dat153.sortify.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
