@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ListView;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -17,12 +19,13 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import no.hvl.dat153.sortify.Adapters.PlaylistAdapter;
 import no.hvl.dat153.sortify.R;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends Activity implements ConnectionStateCallback {
+public class MainActivity extends AppCompatActivity implements ConnectionStateCallback {
     private final int REQUEST_CODE = 1337;
     private final String CLIENT_ID = "134e561475414239b04539e4b8ef7b3c";
     private final String REDIRECT_URI = "http://sortify.com";
@@ -30,10 +33,14 @@ public class MainActivity extends Activity implements ConnectionStateCallback {
     private SpotifyService spotify;
     private String accessToken;
 
+    ListView plListView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        plListView = (ListView)findViewById(R.id.playlistListView);
 
         // Restore preferences
         SharedPreferences settings = getSharedPreferences("AUTH", 0);
@@ -60,9 +67,11 @@ public class MainActivity extends Activity implements ConnectionStateCallback {
             @Override
             public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
                 if (playlistSimplePager.items.size() > 0) {
-                    for (PlaylistSimple pl : playlistSimplePager.items) {
-                        System.out.println(pl.name);
-                    }
+
+                    PlaylistAdapter adapter = new PlaylistAdapter(getApplicationContext(), playlistSimplePager.items);
+                    plListView.setAdapter(adapter);
+                    //plListView.setOnItemClickListener(onItemClickListener);
+
                 }
             }
 
