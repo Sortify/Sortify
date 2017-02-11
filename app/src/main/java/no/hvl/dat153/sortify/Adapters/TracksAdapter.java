@@ -37,9 +37,9 @@ public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
         TextView name = (TextView) convertView.findViewById(R.id.trackNameTextView);
         TextView artistAlbum = (TextView) convertView.findViewById(R.id.artistAlbumTextView);
 
-        if (currentTrack != null && track.track.uri.equals(currentTrack.uri)) {
-            name.setTextColor(Color.RED);
-        }
+        //if (currentTrack != null && track.track.uri.equals(currentTrack.uri)) {
+            //name.setTextColor(Color.RED);
+        //}
 
         name.setText(track.track.name);
         artistAlbum.setText(track.track.artists.get(0).name + " - " + track.track.album.name);
