@@ -6,7 +6,11 @@ import android.content.SharedPreferences;
 import com.spotify.sdk.android.player.Metadata;
 import com.spotify.sdk.android.player.Player;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 
 public class App extends Application {
     public static final String CLIENT_ID = "134e561475414239b04539e4b8ef7b3c";
@@ -17,6 +21,8 @@ public class App extends Application {
     public static Player player = null;
 
     public static Metadata.Track currentTrack = null;
+    public static ArrayList<PlaylistTrack> currentPlaylist = null;
+    public static List<PlaylistTrack> queue = null;
 
     public static String userId;
 

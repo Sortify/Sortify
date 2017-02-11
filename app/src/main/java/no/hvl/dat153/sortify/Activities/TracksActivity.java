@@ -17,6 +17,8 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
@@ -35,9 +37,12 @@ import static android.R.drawable.ic_media_play;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyPause;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyPlay;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackChanged;
+import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackDelivered;
 import static no.hvl.dat153.sortify.App.accessToken;
 import static no.hvl.dat153.sortify.App.currentTrack;
 import static no.hvl.dat153.sortify.App.player;
+import static no.hvl.dat153.sortify.App.currentPlaylist;
+import static no.hvl.dat153.sortify.App.queue;
 import static no.hvl.dat153.sortify.App.spotify;
 
 public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
@@ -86,6 +91,8 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
                     } else if (id == 2) {
                         sorted = TrackSort.sortByValence(tracks, afTracks);
                     }
+
+                    currentPlaylist = sorted;
 
                     loadTrackListView(sorted);
                 }
@@ -182,7 +189,8 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             @Override
             public void success(AudioFeaturesTracks audioFeaturesTracks, Response response) {
                 afTracks = (ArrayList) audioFeaturesTracks.audio_features;
-                loadTrackListView(TrackSort.sortByDanceability(tracks, afTracks));
+                currentPlaylist = TrackSort.sortByDanceability(tracks, afTracks);
+                loadTrackListView(currentPlaylist);
             }
 
             @Override
@@ -203,7 +211,13 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             PlaylistTrack plt = (PlaylistTrack) tListView.getAdapter().getItem(position);
+
             player.playUri(null, plt.track.uri, 0, 0);
+
+            // Simple queue
+            int indexFrom = currentPlaylist.indexOf(plt);
+            queue = currentPlaylist.subList(indexFrom + 1, currentPlaylist.size());
+            //Collections.reverse(currentPlaylist);
         }
     };
 
@@ -216,6 +230,9 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             menu.getItem(0).setIcon(ic_media_play);
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackChanged)) {
             currentTrack = player.getMetadata().currentTrack;
+        } else if (playerEvent.equals(kSpPlaybackNotifyTrackDelivered)) {
+            player.playUri(null, queue.get(0).track.uri, 0, 0);
+            queue.remove(0);
         }
 
     }
