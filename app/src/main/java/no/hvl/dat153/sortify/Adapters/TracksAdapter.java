@@ -2,6 +2,7 @@ package no.hvl.dat153.sortify.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,8 @@ import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import no.hvl.dat153.sortify.R;
+
+import static no.hvl.dat153.sortify.App.player;
 
 public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
     private Context context;

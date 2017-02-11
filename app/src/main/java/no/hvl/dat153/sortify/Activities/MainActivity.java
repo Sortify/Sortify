@@ -7,12 +7,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.spotify.sdk.android.player.Spotify;
+
 import java.util.ArrayList;
 
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import no.hvl.dat153.sortify.Adapters.PlaylistAdapter;
 import no.hvl.dat153.sortify.R;
 import retrofit.Callback;
@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        System.out.println("MAIN IS HERE.");
-
         plListView = (ListView)findViewById(R.id.playlistListView);
 
         if (!accessToken.equals(""))
@@ -45,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
                 if (playlistSimplePager.items.size() > 0) {
                     playlists = (ArrayList) playlistSimplePager.items;
-                    PlaylistAdapter adapter = new PlaylistAdapter(getApplicationContext(), playlistSimplePager.items);
+                    PlaylistAdapter adapter = new PlaylistAdapter(MainActivity.this, playlistSimplePager.items);
                     plListView.setAdapter(adapter);
                     plListView.setOnItemClickListener(onItemClickListener);
                 }
@@ -62,11 +60,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             PlaylistSimple pl = (PlaylistSimple) plListView.getAdapter().getItem(position);
-            Intent intent = new Intent(getApplicationContext(), PlaylistActivity.class);
+            Intent intent = new Intent(getApplicationContext(), TracksActivity.class);
             intent.putExtra("playlist", pl.id);
             intent.putExtra("playlistName", pl.name);
             startActivity(intent);
         }
     };
+
+
+    @Override
+    protected void onDestroy() {
+        Spotify.destroyPlayer(this);
+        super.onDestroy();
+    }
 
 }

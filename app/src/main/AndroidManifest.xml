@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".Activities.MainActivity">
         </activity>
-        <activity android:name=".Activities.PlaylistActivity" />
+        <activity android:name=".Activities.TracksActivity" />
         <activity android:name=".Activities.AuthenticateActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
