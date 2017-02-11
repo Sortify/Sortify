@@ -1,17 +1,12 @@
 package no.hvl.dat153.sortify;
 
 import android.app.Application;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
-import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Metadata;
 import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.Spotify;
-import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import kaaes.spotify.webapi.android.SpotifyService;
-import no.hvl.dat153.sortify.Activities.AuthenticateActivity;
 
 public class App extends Application {
     public static final String CLIENT_ID = "134e561475414239b04539e4b8ef7b3c";
@@ -19,7 +14,9 @@ public class App extends Application {
 
     public static SpotifyService spotify;
     public static String accessToken;
-    public static Player player;
+    public static Player player = null;
+
+    public static Metadata.Track currentTrack = null;
 
     public static String userId;
 

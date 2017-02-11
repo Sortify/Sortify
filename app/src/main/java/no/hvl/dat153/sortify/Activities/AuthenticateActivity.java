@@ -8,19 +8,21 @@ import android.util.Log;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
 import no.hvl.dat153.sortify.R;
 
 import static com.spotify.sdk.android.authentication.LoginActivity.REQUEST_CODE;
 import static no.hvl.dat153.sortify.App.CLIENT_ID;
 import static no.hvl.dat153.sortify.App.REDIRECT_URI;
 import static no.hvl.dat153.sortify.App.accessToken;
+import static no.hvl.dat153.sortify.App.player;
 import static no.hvl.dat153.sortify.App.spotify;
-import static no.hvl.dat153.sortify.App.userId;
 
 public class AuthenticateActivity extends AppCompatActivity implements ConnectionStateCallback {
 
@@ -61,20 +63,35 @@ public class AuthenticateActivity extends AppCompatActivity implements Connectio
 
                 spotify = api.getService();
 
+                getPlayer();
+
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 startActivity(mainIntent);
             }
         }
     }
 
-
-
     @Override
     public void onLoggedIn() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+        //Intent intent = new Intent(this, MainActivity.class);
+        //startActivity(intent);
 
         Log.d("MainActivity", "User logged in");
+    }
+
+    private void getPlayer() {
+        Config playerConfig = new Config(this, accessToken, CLIENT_ID);
+        Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
+            @Override
+            public void onInitialized(SpotifyPlayer spotifyPlayer) {
+                player = spotifyPlayer;
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Log.e("TracksActivity", "Could not initialize player: " + throwable.getMessage());
+            }
+        });
     }
 
     @Override

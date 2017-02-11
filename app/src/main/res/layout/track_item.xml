@@ -12,7 +12,7 @@
         android:layout_marginStart="15dp"
         android:layout_marginTop="10dp"
         android:id="@+id/trackNameTextView"
-        android:textColor="#000" />
+        android:textColor="@color/black"/>
 
     <TextView
         android:layout_width="wrap_content"

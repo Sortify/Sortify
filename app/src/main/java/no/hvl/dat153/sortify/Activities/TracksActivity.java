@@ -2,7 +2,6 @@ package no.hvl.dat153.sortify.Activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,11 +11,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
@@ -36,8 +33,10 @@ import retrofit.client.Response;
 import static android.R.drawable.ic_media_pause;
 import static android.R.drawable.ic_media_play;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyPause;
-import static no.hvl.dat153.sortify.App.CLIENT_ID;
+import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyPlay;
+import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackChanged;
 import static no.hvl.dat153.sortify.App.accessToken;
+import static no.hvl.dat153.sortify.App.currentTrack;
 import static no.hvl.dat153.sortify.App.player;
 import static no.hvl.dat153.sortify.App.spotify;
 
@@ -97,10 +96,13 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         });
 
         if (!accessToken.equals("")) {
-            getPlayer();
             getMeId();
         }
 
+        if (player != null) {
+            player.addConnectionStateCallback(TracksActivity.this);
+            player.addNotificationCallback(TracksActivity.this);
+        }
 
     }
 
@@ -132,22 +134,6 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPlayer() {
-        Config playerConfig = new Config(this, accessToken, CLIENT_ID);
-        Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-            @Override
-            public void onInitialized(SpotifyPlayer spotifyPlayer) {
-                player = spotifyPlayer;
-                player.addConnectionStateCallback(TracksActivity.this);
-                player.addNotificationCallback(TracksActivity.this);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                Log.e("TracksActivity", "Could not initialize player: " + throwable.getMessage());
-            }
-        });
-    }
 
     private void getMeId() {
         spotify.getMe(new Callback<UserPrivate>() {
@@ -205,10 +191,10 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     }
 
     private void loadTrackListView(ArrayList<PlaylistTrack> sorted) {
-        TracksAdapter adapter = new TracksAdapter(this, sorted);
-        tListView.setAdapter(adapter);
+        TracksAdapter tlvAdapter = new TracksAdapter(this, sorted, currentTrack);
+        tListView.setAdapter(tlvAdapter);
         tListView.setOnItemClickListener(onItemClickListener);
-        adapter.notifyDataSetChanged();
+        tlvAdapter.notifyDataSetChanged();
     }
 
     AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
@@ -222,10 +208,12 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     @Override
     public void onPlaybackEvent(PlayerEvent playerEvent) {
 
-        if (playerEvent.equals(PlayerEvent.kSpPlaybackNotifyPlay)) {
+        if (playerEvent.equals(kSpPlaybackNotifyPlay)) {
             menu.getItem(0).setIcon(ic_media_pause);
         } else if (playerEvent.equals(kSpPlaybackNotifyPause)) {
             menu.getItem(0).setIcon(ic_media_play);
+        } else if (playerEvent.equals(kSpPlaybackNotifyTrackChanged)) {
+            currentTrack = player.getMetadata().currentTrack;
         }
 
     }
