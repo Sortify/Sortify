@@ -45,6 +45,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
     private String playlist;
     private String playlistName;
+    private String playlistOwner;
 
     ArrayList<PlaylistTrack> tracks;
     ArrayList<AudioFeaturesTrack> afTracks = new ArrayList<>();
@@ -58,6 +59,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
         playlist = getIntent().getStringExtra("playlist");
         playlistName = getIntent().getStringExtra("playlistName");
+        playlistOwner = getIntent().getStringExtra("playlistOwner");
 
         setTitle(playlistName);
 
@@ -152,7 +154,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     }
 
     private void getTracks(String userId, String playlistId) {
-        spotify.getPlaylistTracks(userId, playlistId, new Callback<Pager<PlaylistTrack>>() {
+        spotify.getPlaylistTracks(playlistOwner, playlistId, new Callback<Pager<PlaylistTrack>>() {
             @Override
             public void success(Pager<PlaylistTrack> trackPager, Response response) {
                 if (trackPager.items.size() > 0) {

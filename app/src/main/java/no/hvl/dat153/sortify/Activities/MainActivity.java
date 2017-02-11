@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), TracksActivity.class);
             intent.putExtra("playlist", pl.id);
             intent.putExtra("playlistName", pl.name);
+            intent.putExtra("playlistOwner", pl.owner.id);
             startActivity(intent);
         }
     };
