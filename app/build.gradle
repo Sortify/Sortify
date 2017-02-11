@@ -35,10 +35,11 @@ dependencies {
     compile 'com.spotify.sdk:spotify-player-24-noconnect-2.20b@aar'
     compile 'com.spotify.sdk:spotify-android-auth-1.0.0@aar'
     compile 'com.github.kaaes:spotify-web-api-android-0.4.1@aar'
+
     compile 'com.squareup.retrofit2:retrofit:1.9.0'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-
     compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:support-v4:25.1.0'
     testCompile 'junit:junit:4.12'
 }

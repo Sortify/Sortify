@@ -1,12 +1,23 @@
 package no.hvl.dat153.sortify.Activities;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.PlayerEvent;
+import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,11 +40,13 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
+import static no.hvl.dat153.sortify.App.CLIENT_ID;
 import static no.hvl.dat153.sortify.App.accessToken;
+import static no.hvl.dat153.sortify.App.player;
 import static no.hvl.dat153.sortify.App.spotify;
 import static no.hvl.dat153.sortify.App.userId;
 
-public class PlaylistActivity extends AppCompatActivity {
+public class PlaylistActivity extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
     private String playlist;
     private String playlistName;
 
@@ -87,10 +100,28 @@ public class PlaylistActivity extends AppCompatActivity {
         });
 
         if (!accessToken.equals("")) {
+            getPlayer();
             getMeId();
         }
 
 
+    }
+
+    private void getPlayer() {
+        Config playerConfig = new Config(this, accessToken, CLIENT_ID);
+        Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
+            @Override
+            public void onInitialized(SpotifyPlayer spotifyPlayer) {
+                player = spotifyPlayer;
+                player.addConnectionStateCallback(PlaylistActivity.this);
+                player.addNotificationCallback(PlaylistActivity.this);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Log.e("PlaylistActivity", "Could not initialize player: " + throwable.getMessage());
+            }
+        });
     }
 
     private void getMeId() {
@@ -151,8 +182,56 @@ public class PlaylistActivity extends AppCompatActivity {
     private void loadTrackListView(ArrayList<PlaylistTrack> sorted) {
         TracksAdapter adapter = new TracksAdapter(this, sorted);
         tListView.setAdapter(adapter);
+        tListView.setOnItemClickListener(onItemClickListener);
         adapter.notifyDataSetChanged();
-        //plListView.setOnItemClickListener(onItemClickListener);
     }
 
+    AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            PlaylistTrack plt = (PlaylistTrack) tListView.getAdapter().getItem(position);
+            player.playUri(null, plt.track.uri, 0, 0);
+        }
+    };
+
+    @Override
+    public void onPlaybackEvent(PlayerEvent playerEvent) {
+
+    }
+
+    @Override
+    public void onPlaybackError(Error error) {
+
+    }
+
+    @Override
+    public void onLoggedIn() {
+        player.pause(null);
+    }
+
+    @Override
+    public void onLoggedOut() {
+
+    }
+
+    @Override
+    public void onLoginFailed(Error error) {
+
+    }
+
+    @Override
+    public void onTemporaryError() {
+
+    }
+
+    @Override
+    public void onConnectionMessage(String s) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        Spotify.destroyPlayer(this);
+        super.onDestroy();
+    }
 }

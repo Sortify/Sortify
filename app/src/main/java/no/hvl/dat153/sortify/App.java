@@ -43,7 +43,7 @@ public class App extends Application {
     private void setupAuth() {
         // Start authenticate activity
         System.out.println("APP IS HERE: STARTING AUTH INTENT");
-        Intent intent = new Intent(this, AuthenticateActivity.class);
+        //Intent intent = new Intent(this, AuthenticateActivity.class);
         //startActivity(intent);
     }
 
