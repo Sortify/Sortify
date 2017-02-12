@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import no.hvl.dat153.sortify.Adapters.TracksAdapter;
@@ -41,9 +42,8 @@ import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackC
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackDelivered;
 import static no.hvl.dat153.sortify.App.accessToken;
 import static no.hvl.dat153.sortify.App.currentPlaylist;
-import static no.hvl.dat153.sortify.App.currentTrack;
+import static no.hvl.dat153.sortify.App.currentTrackPosition;
 import static no.hvl.dat153.sortify.App.player;
-import static no.hvl.dat153.sortify.App.queue;
 import static no.hvl.dat153.sortify.App.spotify;
 
 public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
@@ -55,6 +55,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
     ArrayList<PlaylistTrack> tracks;
     ArrayList<AudioFeaturesTrack> afTracks = new ArrayList<>();
+
     ListView tListView;
     Spinner dropdown;
 
@@ -75,7 +76,6 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         String[] items = new String[]{"Danceability", "Energy", "Positivity"};
         final ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
         dropdown.setAdapter(spinnerAdapter);
-
         dropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -132,9 +132,22 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.next) {
-            player.playUri(null, queue.get(0).track.uri, 0, 0);
-            queue.remove(0);
+        if (id == R.id.nextPlayer) {
+            if (currentTrackPosition <= currentPlaylist.size() - 2) {
+                currentTrackPosition += 1;
+                player.playUri(null, currentPlaylist.get(currentTrackPosition).track.uri, 0, 0);
+            } else {
+                currentTrackPosition = 0;
+                player.playUri(null, currentPlaylist.get(0).track.uri, 0, 0);
+            }
+        } else if (id == R.id.prevPlayer) {
+            if (currentTrackPosition > 0) {
+                currentTrackPosition -= 1;
+                player.playUri(null, currentPlaylist.get(currentTrackPosition).track.uri, 0, 0);
+            } else {
+                currentTrackPosition = currentPlaylist.size() - 1;
+                player.playUri(null, currentPlaylist.get(currentTrackPosition).track.uri, 0, 0);
+            }
         } else if (id == R.id.togglePlayer) {
             if (player.getPlaybackState().isPlaying) {
                 player.pause(null);
@@ -146,15 +159,10 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
-
     private void getMeId() {
         spotify.getMe(new Callback<UserPrivate>() {
             @Override
             public void success(UserPrivate userPrivate, Response response) {
-                System.out.println(userPrivate.id);
                 getTracks(userPrivate.id, playlist);
             }
 
@@ -171,10 +179,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             public void success(Pager<PlaylistTrack> trackPager, Response response) {
                 if (trackPager.items.size() > 0) {
                     tracks = (ArrayList) trackPager.items;
-
                     String trackIds = "";
-
-                    // Get track features
                     for (PlaylistTrack plTrack : tracks) {
                         trackIds += plTrack.track.id + ",";
                     }
@@ -215,13 +220,8 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            PlaylistTrack plt = (PlaylistTrack) tListView.getAdapter().getItem(position);
-
-            player.playUri(null, plt.track.uri, 0, 0);
-
-            // Init simple queue
-            int indexFrom = currentPlaylist.indexOf(plt);
-            queue = currentPlaylist.subList(indexFrom + 1, currentPlaylist.size());
+            currentTrackPosition = position;
+            player.playUri(null, currentPlaylist.get(currentTrackPosition).track.uri, 0, 0);
         }
     };
 
@@ -229,14 +229,13 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     public void onPlaybackEvent(PlayerEvent playerEvent) {
 
         if (playerEvent.equals(kSpPlaybackNotifyPlay)) {
-            menu.getItem(0).setIcon(ic_media_pause);
+            menu.getItem(1).setIcon(ic_media_pause);
         } else if (playerEvent.equals(kSpPlaybackNotifyPause)) {
-            menu.getItem(0).setIcon(ic_media_play);
+            menu.getItem(1).setIcon(ic_media_play);
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackChanged)) {
-            currentTrack = player.getMetadata().currentTrack;
+            //currentTrack = player.getMetadata().currentTrack;
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackDelivered)) {
-            player.playUri(null, queue.get(0).track.uri, 0, 0);
-            queue.remove(0);
+            player.playUri(null, tracks.get(currentTrackPosition).track.uri, 0, 0);
         }
 
     }

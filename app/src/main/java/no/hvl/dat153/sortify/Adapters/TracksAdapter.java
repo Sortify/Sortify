@@ -18,12 +18,10 @@ import no.hvl.dat153.sortify.R;
 
 public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
     private Context context;
-    private Metadata.Track currentTrack;
 
     public TracksAdapter(Context context, ArrayList<PlaylistTrack> tracks) {
         super(context, 0, (List) tracks);
         this.context = context;
-        this.currentTrack = currentTrack;
     }
 
     @Override

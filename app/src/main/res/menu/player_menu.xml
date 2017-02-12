@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/prevPlayer" android:title="Prev" android:icon="@android:drawable/ic_media_previous" app:showAsAction="always" />
+
+    <item
         android:id="@+id/togglePlayer" android:title="Toggle" android:icon="@android:drawable/ic_media_play" app:showAsAction="always" />
     <item
-        android:id="@+id/next" android:title="Next" android:icon="@android:drawable/ic_media_next" app:showAsAction="always" />
+        android:id="@+id/nextPlayer" android:title="Next" android:icon="@android:drawable/ic_media_next" app:showAsAction="always" />
 
 </menu>

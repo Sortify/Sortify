@@ -20,9 +20,8 @@ public class App extends Application {
     public static String accessToken;
     public static Player player = null;
 
-    public static Metadata.Track currentTrack = null;
     public static ArrayList<PlaylistTrack> currentPlaylist = null;
-    public static List<PlaylistTrack> queue = null;
+    public static int currentTrackPosition;
 
     public static String userId;
 
