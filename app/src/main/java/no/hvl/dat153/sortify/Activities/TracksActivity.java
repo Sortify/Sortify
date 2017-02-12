@@ -1,7 +1,9 @@
 package no.hvl.dat153.sortify.Activities;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,14 +13,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
 import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
@@ -26,6 +30,7 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import no.hvl.dat153.sortify.Adapters.TracksAdapter;
+import no.hvl.dat153.sortify.MyPlayerCallback;
 import no.hvl.dat153.sortify.R;
 import no.hvl.dat153.sortify.TrackSort;
 import retrofit.Callback;
@@ -39,9 +44,9 @@ import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyPlay;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackChanged;
 import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackDelivered;
 import static no.hvl.dat153.sortify.App.accessToken;
+import static no.hvl.dat153.sortify.App.currentPlaylist;
 import static no.hvl.dat153.sortify.App.currentTrack;
 import static no.hvl.dat153.sortify.App.player;
-import static no.hvl.dat153.sortify.App.currentPlaylist;
 import static no.hvl.dat153.sortify.App.queue;
 import static no.hvl.dat153.sortify.App.spotify;
 
@@ -56,6 +61,11 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     ArrayList<AudioFeaturesTrack> afTracks = new ArrayList<>();
     ListView tListView;
     Spinner dropdown;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +78,8 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
         setTitle(playlistName);
 
-        tListView = (ListView)findViewById(R.id.trackListView);
-        dropdown = (Spinner)findViewById(R.id.spinner);
+        tListView = (ListView) findViewById(R.id.trackListView);
+        dropdown = (Spinner) findViewById(R.id.spinner);
 
         String[] items = new String[]{"Danceability", "Energy", "Positivity"};
         final ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
@@ -113,6 +123,9 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             player.addNotificationCallback(TracksActivity.this);
         }
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -130,18 +143,29 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        MyPlayerCallback callback = new MyPlayerCallback();
         int id = item.getItemId();
-
-        if (id == R.id.togglePlayer) {
+        if( id == R.id.next){
+            Log.d("Print ID", ""+id);
+            Log.d("Print ID", R.id.next +"");
+            player.skipToNext(callback); //TODO få next-knappen til å funke. Bug here.
+        }
+        else if (id == R.id.togglePlayer) {
+            Log.d("Print ID", ""+id);
             if (player.getPlaybackState().isPlaying) {
-                player.pause(null);
+
+                player.pause(callback);
             } else {
-                player.resume(null);
+
+                player.resume(callback);
             }
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
 
 
     private void getMeId() {
@@ -266,5 +290,42 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     public void onConnectionMessage(String s) {
 
     }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Tracks Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
+    }
+
 
 }
