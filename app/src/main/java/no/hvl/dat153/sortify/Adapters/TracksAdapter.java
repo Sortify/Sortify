@@ -2,6 +2,7 @@ package no.hvl.dat153.sortify.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,9 @@ import java.util.List;
 
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import no.hvl.dat153.sortify.R;
+
+import static no.hvl.dat153.sortify.App.currentPlaylist;
+import static no.hvl.dat153.sortify.App.currentTrackPosition;
 
 public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
     private Context context;
@@ -37,6 +41,12 @@ public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
 
         name.setText(track.track.name);
         artistAlbum.setText(track.track.artists.get(0).name + " - " + track.track.album.name);
+
+        if (currentTrackPosition != -1 && currentPlaylist.get(currentTrackPosition).equals(track)) {
+            name.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
+        } else {
+            name.setTextColor(Color.BLACK);
+        }
 
         return convertView;
     }

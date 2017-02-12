@@ -21,7 +21,7 @@ public class App extends Application {
     public static Player player = null;
 
     public static ArrayList<PlaylistTrack> currentPlaylist = null;
-    public static int currentTrackPosition;
+    public static int currentTrackPosition = -1;
 
     public static String userId;
 

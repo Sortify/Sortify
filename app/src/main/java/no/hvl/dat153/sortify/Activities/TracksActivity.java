@@ -59,6 +59,8 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     ListView tListView;
     Spinner dropdown;
 
+    TracksAdapter tlvAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,7 +213,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     }
 
     private void loadTrackListView(ArrayList<PlaylistTrack> sorted) {
-        TracksAdapter tlvAdapter = new TracksAdapter(this, sorted);
+        tlvAdapter = new TracksAdapter(this, sorted);
         tListView.setAdapter(tlvAdapter);
         tListView.setOnItemClickListener(onItemClickListener);
         tlvAdapter.notifyDataSetChanged();
@@ -234,6 +236,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             menu.getItem(1).setIcon(ic_media_play);
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackChanged)) {
             //currentTrack = player.getMetadata().currentTrack;
+            tlvAdapter.notifyDataSetChanged();
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackDelivered)) {
             player.playUri(null, tracks.get(currentTrackPosition).track.uri, 0, 0);
         }
