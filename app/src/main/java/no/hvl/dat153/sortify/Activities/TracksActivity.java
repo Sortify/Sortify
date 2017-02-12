@@ -1,9 +1,7 @@
 package no.hvl.dat153.sortify.Activities;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,11 +21,9 @@ import java.util.ArrayList;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTracks;
 import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 import no.hvl.dat153.sortify.Adapters.TracksAdapter;
-import no.hvl.dat153.sortify.MyPlayerCallback;
 import no.hvl.dat153.sortify.R;
 import no.hvl.dat153.sortify.TrackSort;
 import retrofit.Callback;
@@ -43,8 +39,9 @@ import static com.spotify.sdk.android.player.PlayerEvent.kSpPlaybackNotifyTrackD
 import static no.hvl.dat153.sortify.App.accessToken;
 import static no.hvl.dat153.sortify.App.currentPlaylist;
 import static no.hvl.dat153.sortify.App.currentTrackPosition;
-import static no.hvl.dat153.sortify.App.player;
 import static no.hvl.dat153.sortify.App.spotify;
+import static no.hvl.dat153.sortify.TrackPlayer.isPlayerReady;
+import static no.hvl.dat153.sortify.TrackPlayer.player;
 
 public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
     private Menu menu;
@@ -107,11 +104,9 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
             }
         });
 
-        if (!accessToken.equals("")) {
+        if (isPlayerReady) {
             getMeId();
-        }
 
-        if (player != null) {
             player.addConnectionStateCallback(TracksActivity.this);
             player.addNotificationCallback(TracksActivity.this);
         }
@@ -235,7 +230,6 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         } else if (playerEvent.equals(kSpPlaybackNotifyPause)) {
             menu.getItem(1).setIcon(ic_media_play);
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackChanged)) {
-            //currentTrack = player.getMetadata().currentTrack;
             tlvAdapter.notifyDataSetChanged();
         } else if (playerEvent.equals(kSpPlaybackNotifyTrackDelivered)) {
             player.playUri(null, tracks.get(currentTrackPosition).track.uri, 0, 0);

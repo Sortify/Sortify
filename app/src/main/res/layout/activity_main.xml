@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -10,10 +11,63 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="no.hvl.dat153.sortify.Activities.MainActivity">
 
-    <ListView
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="25dp"
+        app:srcCompat="@drawable/ic_logo"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/imageView2"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:text="Welcome to Sortify!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/playlistListView"
+        android:id="@+id/welcomeTitle"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:layout_marginTop="35dp"
+        android:layout_below="@+id/imageView2"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="This app will sort your Spotify playlists by hidden track features, such as danceability or energy. "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/welcomeBody"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_below="@+id/welcomeTitle"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="center"/>
+
+
+    <TextView
+        android:text="To continue, please connect to Spotify."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/connectText"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:layout_below="@+id/welcomeBody"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp" />
+
+    <Button
+        android:text="Connect to Spotify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/connectToSpotify"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/connectText"
+        android:layout_centerHorizontal="true" />
+
+
+
 
 </RelativeLayout>

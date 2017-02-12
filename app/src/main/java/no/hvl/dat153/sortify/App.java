@@ -1,14 +1,12 @@
 package no.hvl.dat153.sortify;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.spotify.sdk.android.player.Metadata;
-import com.spotify.sdk.android.player.Player;
-
 import java.util.ArrayList;
-import java.util.List;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 
@@ -18,7 +16,6 @@ public class App extends Application {
 
     public static SpotifyService spotify;
     public static String accessToken;
-    public static Player player = null;
 
     public static ArrayList<PlaylistTrack> currentPlaylist = null;
     public static int currentTrackPosition = -1;
@@ -30,8 +27,15 @@ public class App extends Application {
         super.onCreate();
 
         // Restore preferences
-        SharedPreferences settings = getSharedPreferences("AUTH", 0);
-        accessToken = settings.getString("ACCESS_TOKEN", "");
-        //userId = settings.getString("USER_ID", "");
+        SharedPreferences sharedPref = getSharedPreferences("SORTIFY", Context.MODE_PRIVATE);
+        accessToken = sharedPref.getString("ACCESS_TOKEN", "");
+
+    }
+
+    public static void initSpotify() {
+        SpotifyApi api = new SpotifyApi();
+        api.setAccessToken(accessToken);
+
+        spotify = api.getService();
     }
 }

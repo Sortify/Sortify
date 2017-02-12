@@ -1,78 +1,70 @@
 package no.hvl.dat153.sortify.Activities;
 
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.Button;
 
-import com.spotify.sdk.android.player.Spotify;
-
-import java.util.ArrayList;
-
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import no.hvl.dat153.sortify.Adapters.PlaylistAdapter;
+import kaaes.spotify.webapi.android.SpotifyApi;
 import no.hvl.dat153.sortify.R;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import no.hvl.dat153.sortify.TrackPlayer;
 
 import static no.hvl.dat153.sortify.App.accessToken;
+import static no.hvl.dat153.sortify.App.initSpotify;
 import static no.hvl.dat153.sortify.App.spotify;
+import static no.hvl.dat153.sortify.TrackPlayer.getPlayer;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<PlaylistSimple> playlists;
-    ListView plListView;
+
+    private Button connect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        plListView = (ListView)findViewById(R.id.playlistListView);
+        setTitle("Sortify");
 
-        if (!accessToken.equals(""))
-            getPlaylists();
-    }
+        System.out.println("Access token: " + accessToken);
 
-    private void getPlaylists() {
-        spotify.getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
-            @Override
-            public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
-                if (playlistSimplePager.items.size() > 0) {
-                    playlists = (ArrayList) playlistSimplePager.items;
-                    PlaylistAdapter adapter = new PlaylistAdapter(MainActivity.this, playlistSimplePager.items);
-                    plListView.setAdapter(adapter);
-                    plListView.setOnItemClickListener(onItemClickListener);
-                }
-            }
+        if (!accessToken.equals("")) {
+            //startApplication();
+        }
 
-            @Override
-            public void failure(RetrofitError retrofitError) {
-
+        connect = (Button) findViewById(R.id.connectToSpotify);
+        connect.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startAuthentication();
             }
         });
     }
 
-    AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            PlaylistSimple pl = (PlaylistSimple) plListView.getAdapter().getItem(position);
-            Intent intent = new Intent(getApplicationContext(), TracksActivity.class);
-            intent.putExtra("playlist", pl.id);
-            intent.putExtra("playlistName", pl.name);
-            intent.putExtra("playlistOwner", pl.owner.id);
-            startActivity(intent);
-        }
-    };
+
+    void startAuthentication() {
+        Intent intent = new Intent(this, AuthenticateActivity.class);
+        startActivityForResult(intent, 1);
+    }
+
+    void startApplication() {
+        initSpotify();
+        getPlayer(this);
+
+        Intent intent = new Intent(this, PlaylistActivity.class);
+        startActivity(intent);
+    }
 
 
     @Override
-    protected void onDestroy() {
-        Spotify.destroyPlayer(this);
-        super.onDestroy();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 1) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                startApplication();
+            }
+        }
     }
-
 }
