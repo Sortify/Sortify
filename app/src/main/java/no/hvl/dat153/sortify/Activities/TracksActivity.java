@@ -95,7 +95,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
                     currentPlaylist = sorted;
 
-                    loadTrackListView(sorted);
+                    loadTrackListView(currentPlaylist);
                 }
 
             }
@@ -130,21 +130,16 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        MyPlayerCallback callback = new MyPlayerCallback();
         int id = item.getItemId();
-        if( id == R.id.next){
-            Log.d("Print ID", ""+id);
-            Log.d("Print ID", R.id.next +"");
-            player.skipToNext(callback); //TODO få next-knappen til å funke. Bug here.
-        }
-        else if (id == R.id.togglePlayer) {
-            Log.d("Print ID", ""+id);
+
+        if (id == R.id.next) {
+            player.playUri(null, queue.get(0).track.uri, 0, 0);
+            queue.remove(0);
+        } else if (id == R.id.togglePlayer) {
             if (player.getPlaybackState().isPlaying) {
-
-                player.pause(callback);
+                player.pause(null);
             } else {
-
-                player.resume(callback);
+                player.resume(null);
             }
         }
 
@@ -157,7 +152,6 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
     private void getMeId() {
         spotify.getMe(new Callback<UserPrivate>() {
-
             @Override
             public void success(UserPrivate userPrivate, Response response) {
                 System.out.println(userPrivate.id);
@@ -212,7 +206,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
     }
 
     private void loadTrackListView(ArrayList<PlaylistTrack> sorted) {
-        TracksAdapter tlvAdapter = new TracksAdapter(this, sorted, currentTrack);
+        TracksAdapter tlvAdapter = new TracksAdapter(this, sorted);
         tListView.setAdapter(tlvAdapter);
         tListView.setOnItemClickListener(onItemClickListener);
         tlvAdapter.notifyDataSetChanged();
@@ -225,10 +219,9 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
 
             player.playUri(null, plt.track.uri, 0, 0);
 
-            // Simple queue
+            // Init simple queue
             int indexFrom = currentPlaylist.indexOf(plt);
             queue = currentPlaylist.subList(indexFrom + 1, currentPlaylist.size());
-            //Collections.reverse(currentPlaylist);
         }
     };
 
