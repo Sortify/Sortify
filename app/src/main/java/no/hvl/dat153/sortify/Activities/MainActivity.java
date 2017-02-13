@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("Access token: " + accessToken);
 
         if (!accessToken.equals("")) {
-            //startApplication();
+            startApplication();
         }
 
         connect = (Button) findViewById(R.id.connectToSpotify);
