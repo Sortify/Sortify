@@ -118,7 +118,7 @@ public class TracksActivity extends AppCompatActivity implements SpotifyPlayer.N
         inflater.inflate(R.menu.player_menu, menu);
 
         if (player.getPlaybackState().isPlaying) {
-            menu.getItem(0).setIcon(ic_media_pause);
+            menu.getItem(1).setIcon(ic_media_pause);
         }
 
         this.menu = menu;
