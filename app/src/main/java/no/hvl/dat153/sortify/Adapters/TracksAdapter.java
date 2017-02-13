@@ -19,6 +19,7 @@ import no.hvl.dat153.sortify.R;
 
 import static no.hvl.dat153.sortify.App.currentPlaylist;
 import static no.hvl.dat153.sortify.App.currentTrackPosition;
+import static no.hvl.dat153.sortify.TrackPlayer.player;
 
 public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
     private Context context;
@@ -42,11 +43,11 @@ public class TracksAdapter extends ArrayAdapter<PlaylistTrack> {
         name.setText(track.track.name);
         artistAlbum.setText(track.track.artists.get(0).name + " - " + track.track.album.name);
 
-        if (currentTrackPosition != -1 && currentPlaylist.get(currentTrackPosition).equals(track)) {
-            name.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
-        } else {
-            name.setTextColor(Color.BLACK);
-        }
+        if (currentTrackPosition != -1)
+            if (player.getMetadata().currentTrack.uri.equals(track.track.uri))
+                name.setTextColor(ContextCompat.getColor(context, R.color.colorPrimary));
+            else
+                name.setTextColor(Color.BLACK);
 
         return convertView;
     }
