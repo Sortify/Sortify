@@ -17,6 +17,8 @@ import static no.hvl.dat153.sortify.App.initSpotify;
 import static no.hvl.dat153.sortify.App.spotify;
 import static no.hvl.dat153.sortify.TrackPlayer.getPlayer;
 
+
+
 public class MainActivity extends AppCompatActivity {
 
     private Button connect;

@@ -7,9 +7,7 @@ import java.util.Comparator;
 import kaaes.spotify.webapi.android.models.AudioFeaturesTrack;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 
-/**
- * Created by nataniel on 11.02.2017.
- */
+
 
 public class TrackSort {
     public static ArrayList<PlaylistTrack> sortByDanceability(ArrayList<PlaylistTrack> uplt, ArrayList<AudioFeaturesTrack> uaft) {

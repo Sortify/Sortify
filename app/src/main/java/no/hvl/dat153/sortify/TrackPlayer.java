@@ -12,9 +12,7 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 import static no.hvl.dat153.sortify.App.CLIENT_ID;
 import static no.hvl.dat153.sortify.App.accessToken;
 
-/**
- * Created by nataniel on 12.02.2017.
- */
+
 
 public class TrackPlayer {
 
